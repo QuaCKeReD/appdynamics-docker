@@ -1,0 +1,24 @@
+FROM alpine:3.11
+
+ARG ZIP_PKG 
+
+RUN apk add --no-cache \
+  openjdk11 \
+  unzip
+
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk
+ENV PATH $PATH:$JAVA_HOME/bin
+ENV MACHINE_AGENT_HOME /opt/appdynamics
+
+COPY $ZIP_PKG /tmp/$ZIP_PKG
+
+RUN mkdir -p $MACHINE_AGENT_HOME \
+  && unzip -oq /tmp/$ZIP_PKG -d $MACHINE_AGENT_HOME/ \
+  && rm /tmp/$ZIP_PKG
+
+WORKDIR $MACHINE_AGENT_HOME
+
+COPY startup.sh ./startup.sh 
+RUN chmod +x ./startup.sh
+
+CMD "./startup.sh"
